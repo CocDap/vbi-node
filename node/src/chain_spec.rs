@@ -84,7 +84,7 @@ pub fn local_testnet_config() -> Result<ChainSpec, String> {
 		"Local Testnet",
 		// ID
 		"local_testnet",
-		ChainType::Live,
+		ChainType::Local,
 		move || {
 			testnet_genesis(
 				wasm_binary,

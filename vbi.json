@@ -1,7 +1,7 @@
 {
   "name": "Local Testnet",
   "id": "local_testnet",
-  "chainType": "Live",
+  "chainType": "Local",
   "bootNodes": [],
   "telemetryEndpoints": null,
   "protocolId": null,
