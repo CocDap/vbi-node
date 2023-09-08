@@ -50,6 +50,8 @@ pub mod pallet {
 		/// Event documentation should end with an array that provides descriptive names for event
 		/// parameters. [something, who]
 		SomethingStored { something: u32, who: T::AccountId },
+		Increased { value: u32, who: T::AccountId },
+		Decreased { value: u32, who: T::AccountId },
 	}
 
 	// Errors inform users that something went wrong.
@@ -59,6 +61,7 @@ pub mod pallet {
 		NoneValue,
 		/// Errors should have helpful documentation associated with them.
 		StorageOverflow,
+		CanNotSub
 	}
 
 	// Dispatchable functions allows users to interact with the pallet and invoke state changes.
@@ -84,6 +87,43 @@ pub mod pallet {
 			// Return a successful DispatchResultWithPostInfo
 			Ok(())
 		}
+
+		#[pallet::call_index(4)]
+		#[pallet::weight(T::WeightInfo::do_something())]
+		pub fn increase(origin: OriginFor<T>) -> DispatchResult {
+			// Check that the extrinsic was signed and get the signer.
+			// This function will return an error if the extrinsic is not signed.
+			// https://docs.substrate.io/main-docs/build/origins/
+			let who = ensure_signed(origin)?;
+			let current_value = Something::<T>::get().unwrap_or_default();
+			let next_value = current_value + 1;
+			// Update storage.
+			<Something<T>>::put(next_value);
+
+			// Emit an event.
+			Self::deposit_event(Event::Increased { value: next_value, who });
+			// Return a successful DispatchResultWithPostInfo
+			Ok(())
+		}
+
+		#[pallet::call_index(5)]
+		#[pallet::weight(T::WeightInfo::do_something())]
+		pub fn decrease(origin: OriginFor<T>) -> DispatchResult {
+			// Check that the extrinsic was signed and get the signer.
+			// This function will return an error if the extrinsic is not signed.
+			// https://docs.substrate.io/main-docs/build/origins/
+			let who = ensure_signed(origin)?;
+			let current_value = Something::<T>::get().unwrap_or_default();
+			let next_value = current_value.checked_sub(1).ok_or(Error::<T>::CanNotSub)?;
+			// Update storage.
+			<Something<T>>::put(next_value);
+
+			// Emit an event.
+			Self::deposit_event(Event::Decreased { value: next_value, who });
+			// Return a successful DispatchResultWithPostInfo
+			Ok(())
+		}
+
 
 		/// An example dispatchable that may throw a custom error.
 		#[pallet::call_index(1)]
